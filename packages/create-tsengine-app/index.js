@@ -1,4 +1,6 @@
 const readline = require('readline');
+const fs = require('fs');
+const fsExtra = require('fs-extra');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -15,9 +17,8 @@ async function askQuestions() {
       });
     };
 
-    answers.projectName = await askQuestion('What is your project name?📄 ');
-    answers.description = await askQuestion('Project description (optional): 📖');
-    answers.type = await askQuestion('Project type (web 💻, desktop 🖥️): ');
+    answers.projectName = await askQuestion('What is your project name?: ');
+    answers.type = await askQuestion('Project type (web, desktop ): ');
 
 
     rl.close();
@@ -26,21 +27,32 @@ async function askQuestions() {
   } catch (error) {process.exit()}
 }
 
-function initApp(name, description, type) {
+async function initApp(name, type) {
+    console.log('WARNING! If your using desktop platform. Install cargo using rustup');
+    const currentDirectory = process.cwd();
+    const newPath = `${currentDirectory}/${name}`;
+    let cpPath;
+
+    if (type == 'desktop') {
+      cpPath = './platform/desktop';
+    } else {
+      cpPath = './platform/web';
+    }
+
+    try {
+      fs.mkdirSync(newPath);
+      await fsExtra.copy(cpPath, newPath);
+    } catch(err) {process.exit()};
     
 }
 
-function main() {
-    const answers = askQuestions();
-    console.log('Creating project...');
+async function main() {
+    const answers = await askQuestions();
 
     const name = answers.projectName;
-    const description = answers.description;
     const type = answers.type;
 
-    if (description) {
-        initApp(name, description, type);
-    } else {
-        initApp(name, '', type);
-    }
+    initApp(name, type);
 }
+
+main();
