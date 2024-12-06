@@ -44,4 +44,3 @@ function main() {
         initApp(name, '', type);
     }
 }
-
